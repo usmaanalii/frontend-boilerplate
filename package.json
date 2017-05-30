@@ -17,14 +17,16 @@
   },
   "homepage": "https://github.com/usyyy/usyyy.github.io#readme",
   "devDependencies": {
+    "bootstrap-sass": "^3.3.7",
     "browser-sync": "^2.18.12",
     "gulp": "^3.9.1",
-    "gulp-cache": "^0.4.6",
-    "gulp-if": "^2.0.2",
-    "gulp-imagemin": "^3.2.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-purifycss": "^0.2.0",
+    "gulp-rename": "^1.2.2",
     "gulp-sass": "^3.1.0",
     "gulp-uglify": "^3.0.0",
-    "gulp-useref": "^3.1.2",
+    "gulp-uglifycss": "^1.0.8",
+    "jquery": "^3.2.1",
     "run-sequence": "^1.2.2"
   }
 }

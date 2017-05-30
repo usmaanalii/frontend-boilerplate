@@ -1,19 +1,39 @@
 var gulp = require('gulp'),
     sass = require('gulp-sass'),
     browserSync = require('browser-sync').create(),
-    useref = require('gulp-useref'),
+    concat = require('gulp-concat'),
+    rename = require('gulp-rename'),
     uglify = require('gulp-uglify'),
-    gulpIf = require('gulp-if'),
-    cssnano = require('gulp-cssnano'),
-    imageMin = require('gulp-imagemin'),
-    cache = require('gulp-cache'),
+    uglifycss = require('gulp-uglifycss'),
+    purify = require('gulp-purifycss'),
     runSequence = require('run-sequence');
 
+var sassFiles = 'src/sass/**/*.sass',
+    cssDest = 'dist/css',
+    jsFiles = 'src/js/**/*.js',
+    jsDest = 'dist/js';
 
 gulp.task('sass', function() {
-    return gulp.src('src/sass/**/*.sass')
+    return gulp.src(sassFiles)
         .pipe(sass()) // Converts Sass to CSS with gulp-sass
-        .pipe(gulp.dest('dist/css'))
+        // .pipe(purify([jsFiles, '*.html']))
+        .pipe(rename('main.min.css'))
+        .pipe(uglifycss({
+            "maxLineLen": 80,
+            "uglyComments": true
+        }))
+        .pipe(gulp.dest(cssDest))
+        .pipe(browserSync.reload({
+            stream: true
+        }));
+});
+
+gulp.task('js', function() {
+    return gulp.src(['src/js/lib/jquery.min.js', jsFiles])
+        .pipe(concat('main.js'))
+        .pipe(rename('main.min.js'))
+        // .pipe(uglify())
+        .pipe(gulp.dest(jsDest))
         .pipe(browserSync.reload({
             stream: true
         }));
@@ -22,7 +42,7 @@ gulp.task('sass', function() {
 gulp.task('watch', ['browserSync'], function() {
     gulp.watch('src/sass/**/*.sass', ['sass']);
     gulp.watch('*.html', browserSync.reload);
-    gulp.watch('src/js/**/*.js', browserSync.reload);
+    gulp.watch('src/js/**/*.js', ['js']);
 });
 
 gulp.task('browserSync', function() {
@@ -33,26 +53,8 @@ gulp.task('browserSync', function() {
     });
 });
 
-gulp.task('useref', function() {
-    return gulp.src('*.html')
-        .pipe(useref())
-        // Minifies only if it's a javascript file
-        .pipe(gulpIf('*.js', uglify()))
-        // Minifies only if it's a css file
-        .pipe(gulpIf('*.css', cssnano()))
-        .pipe(gulp.dest('dist'));
-});
-
-gulp.task('images', function() {
-    return gulp.src('src/img/**/*.+(png|jpg|gif|svg)')
-        .pipe(cache(imageMin({
-            interlaced: true
-        })))
-        .pipe(gulp.dest('dist/img'));
-});
-
 gulp.task('build', function(callback) {
-    runSequence(['sass', 'useref', 'images'],
+    runSequence(['sass', 'js'],
         callback
     );
 });

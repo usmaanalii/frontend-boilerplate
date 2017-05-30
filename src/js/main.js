@@ -1,5 +1,5 @@
 $(document).ready(function() {
     var main = 'main';
 
-    console.log(2);
+    console.log('from main.js');
 });
