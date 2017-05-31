@@ -1,5 +1,1 @@
-$(document).ready(function() {
-    var two = 1;
-
-    console.log('from two.js');
-});
+$(document).ready(function(){console.log("from two.js")});

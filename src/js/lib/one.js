@@ -1,5 +1,1 @@
-$(document).ready(function() {
-    var one = 1;
-
-    console.log('form one.js');
-});
+$(document).ready(function(){console.log("form one.js")});
