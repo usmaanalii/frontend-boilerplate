@@ -1,1 +1,3 @@
-$(document).ready(function(){console.log("from two.js")});
+$(document).ready(function() {
+    console.log("from two.js");
+});
