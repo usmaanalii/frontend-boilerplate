@@ -1,18 +1,28 @@
 var gulp = require('gulp'),
     browserSync = require('browser-sync').create(),
+    gutil = require('gulp-util'),
+    plumber = require('gulp-plumber'),
+    sourcemaps = require('gulp-sourcemaps'),
     concat = require('gulp-concat'),
     rename = require('gulp-rename'),
     uglify = require('gulp-uglify'),
     sass = require('gulp-sass'),
     uglifycss = require('gulp-uglifycss'),
     purify = require('gulp-purifycss'),
-    bulkSass = require('gulp-sass-bulk-import');
+    bulkSass = require('gulp-sass-bulk-import'),
+    autoprefixer = require('gulp-autoprefixer'),
     runSequence = require('run-sequence');
 
 var sassFiles = 'src/sass/**/*.sass',
     cssDest = 'dist/css',
     jsFiles = 'src/js/**/*.js',
     jsDest = 'dist/js';
+
+var onError = function (err) {
+    gutil.beep();
+    console.log(err);
+    this.emit('end');
+};
 
 gulp.task('watch', ['browserSync'], function() {
     gulp.watch('src/sass/**/*.sass', ['sass']);
@@ -30,11 +40,19 @@ gulp.task('browserSync', function() {
 
 gulp.task('sass', function() {
     return gulp.src('src/sass/main.sass')
+        .pipe(sourcemaps.init())
+        .pipe(plumber({
+            errorHandler: onError
+        }))
         .pipe(bulkSass())
         .pipe(
             sass({
                 includePaths: ['src/sass']
             }))
+        .pipe(autoprefixer({
+            browsers: ['last 2 versions'],
+            cascade: false
+        }))
         .pipe(rename('main.min.css'))
         .pipe(uglifycss({
             "maxLineLen": 80,
