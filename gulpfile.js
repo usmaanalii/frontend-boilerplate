@@ -5,20 +5,27 @@
  */
 var gulp = require('gulp'),
     browserSync = require('browser-sync').create(),
-    gutil = require('gulp-util'),
     plumber = require('gulp-plumber'),
+    gutil = require('gulp-util'),
+    merge = require('merge-stream'),
+    runSequence = require('run-sequence'),
+
     concat = require('gulp-concat'),
     rename = require('gulp-rename'),
+
     htmlmin = require('gulp-htmlmin'),
-    uglify = require('gulp-uglify'),
+    htmlPartial = require('gulp-html-partial'),
+
     sass = require('gulp-sass'),
     uglifycss = require('gulp-uglifycss'),
     sourcemaps = require('gulp-sourcemaps'),
     purify = require('gulp-purifycss'),
     bulkSass = require('gulp-sass-bulk-import'),
     autoprefixer = require('gulp-autoprefixer'),
-    htmlPartial = require('gulp-html-partial'),
-    runSequence = require('run-sequence');
+
+    uglify = require('gulp-uglify'),
+
+    spritesmith = require('gulp.spritesmith');
 
 /**
  ****************************************************
@@ -26,9 +33,12 @@ var gulp = require('gulp'),
  ****************************************************
  */
 
-var sassFiles = 'src/sass/**/*.sass',
-    cssDest = 'dist/css',
+var htmlFiles = 'src/html/**/*.html',
+    sassFiles = 'src/sass/**/*.sass',
     jsFiles = 'src/js/**/*.js',
+
+    htmlDest = 'dist/',
+    cssDest = 'dist/css',
     jsDest = 'dist/js';
 
 /**
@@ -42,7 +52,7 @@ var sassFiles = 'src/sass/**/*.sass',
  * @param  {string} err [error produced from SASS file]
  * @return {object}     [details the SASS error]
  */
-var onError = function (err) {
+var onError = function(err) {
     gutil.beep();
     console.log(err);
     this.emit('end');
@@ -63,22 +73,22 @@ var onError = function (err) {
  */
 
 
- /**
-  ****************************************************
-  * Server and browser reload tasks
-  ****************************************************
-  */
+/**
+ ****************************************************
+ * Server and browser reload tasks
+ ****************************************************
+ */
 
 gulp.task('watch', ['browserSync'], function() {
-    gulp.watch('src/sass/**/*.sass', ['sass-compile']);
-    gulp.watch('src/html/**/*.html', ['html-partial']);
-    gulp.watch('src/js/**/*.js', ['js-concat']);
+    gulp.watch(sassFiles, ['sass-compile']);
+    gulp.watch(htmlFiles, ['html-partial']);
+    gulp.watch(jsFiles, ['js-concat']);
 });
 
 gulp.task('browserSync', function() {
     browserSync.init({
         server: {
-            baseDir: 'dist/'
+            baseDir: htmlDest
         },
     });
 });
@@ -89,29 +99,30 @@ gulp.task('browserSync', function() {
  ****************************************************
  */
 
-gulp.task('html-partial', function () {
-    return gulp.src(['src/html/**/*.html'])
+gulp.task('html-partial', function() {
+    return gulp.src([htmlFiles])
         .pipe(htmlPartial({
             basePath: 'src/html/partials/'
         }))
-        .pipe(gulp.dest('dist/'))
+        .pipe(gulp.dest(htmlDest))
         .pipe(browserSync.reload({
             stream: true
         }));
 });
 
 gulp.task('html-minify', function() {
-  return gulp.src('dist/**/*.html')
-    .pipe(htmlmin({collapseWhitespace: true}))
-    .pipe(gulp.dest('dist/'));
+    return gulp.src('dist/**/*.html')
+        .pipe(htmlmin({
+            collapseWhitespace: true
+        }))
+        .pipe(gulp.dest(htmlDest));
 });
 
 gulp.task('html-to-root', [], function() {
-  console.log('Moving html to root');
-  gulp.src('dist/**/*.html')
-      .pipe(gulp.dest(''));
+    console.log('Moving html to root');
+    gulp.src('dist/**/*.html')
+        .pipe(gulp.dest(''));
 });
-
 
 /**
  ****************************************************
@@ -147,12 +158,12 @@ gulp.task('sass-compile', function() {
 
 gulp.task('css-purify', function() {
     return gulp.src('dist/css/main.min.css')
-            .pipe(purify([jsFiles, '*.html']))
-            .pipe(uglifycss({
-                "maxLineLen": 80,
-                "uglyComments": true
-            }))
-            .pipe(gulp.dest(cssDest));
+        .pipe(purify([jsFiles, htmlFiles]))
+        .pipe(uglifycss({
+            "maxLineLen": 80,
+            "uglyComments": true
+        }))
+        .pipe(gulp.dest(cssDest));
 });
 
 /**
@@ -176,6 +187,40 @@ gulp.task('js-concat', function() {
             stream: true
         }));
 });
+
+/**
+ ****************************************************
+ * TODO: Add image optimisation
+ * Image tasks INCOMPLETE !!!!!!!!!!!
+ ****************************************************
+ */
+
+gulp.task('sprite', function() {
+    // Generate our spritesheet
+    var spriteData = gulp.src('src/img/*.png').pipe(spritesmith({
+        imgName: 'sprite.png',
+        cssName: 'sprite.css'
+    }));
+
+    // Pipe image stream through image optimizer and onto disk
+    var imgStream = spriteData.img
+        .pipe(gulp.dest('dist/img/'));
+
+    // Pipe CSS stream through CSS optimizer and onto disk
+    var cssStream = spriteData.css
+        .pipe(gulp.dest('dist/css'));
+
+    // Return a merged stream to handle both `end` events
+    return merge(imgStream, cssStream);
+});
+
+/**
+ ****************************************************
+ * TODO: Add a test automation workflow
+ ****************************************************
+ */
+
+
 
 /**
  ****************************************************
