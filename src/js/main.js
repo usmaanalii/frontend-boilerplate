@@ -1,3 +1,3 @@
 $(document).ready(function() {
-    console.log("From main.js");
+    console.log("from main.js");
 });

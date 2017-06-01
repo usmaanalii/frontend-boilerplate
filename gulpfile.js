@@ -2,7 +2,6 @@ var gulp = require('gulp'),
     browserSync = require('browser-sync').create(),
     gutil = require('gulp-util'),
     plumber = require('gulp-plumber'),
-    clean = require('gulp-clean'),
     concat = require('gulp-concat'),
     rename = require('gulp-rename'),
     uglify = require('gulp-uglify'),
@@ -27,7 +26,7 @@ var onError = function (err) {
 };
 
 gulp.task('watch', ['browserSync'], function() {
-    gulp.watch('src/sass/**/*.sass', ['sass']);
+    gulp.watch('src/sass/**/*.sass', ['sass-compile']);
     gulp.watch('src/html/**/*.html', ['html-partial']);
     gulp.watch('src/js/**/*.js', ['js-concat']);
 });
@@ -51,19 +50,13 @@ gulp.task('html-partial', function () {
         }));
 });
 
-gulp.task('html-clean', function () {
-    return gulp.src(['dist/html/index.html', 'dist/html/partials'], {read: false})
-        .pipe(clean());
-});
-
-
-gulp.task('html-root', [], function() {
-  console.log('Moving index.html to root');
-  gulp.src('dist/html/index.html')
+gulp.task('html-to-root', [], function() {
+  console.log('Moving html to root');
+  gulp.src('dist/**/*.html')
       .pipe(gulp.dest(''));
 });
 
-gulp.task('sass', function() {
+gulp.task('sass-compile', function() {
     return gulp.src('src/sass/main.sass')
         .pipe(sourcemaps.init())
         .pipe(plumber({
@@ -92,6 +85,10 @@ gulp.task('sass', function() {
 gulp.task('css-purify', function() {
     return gulp.src('dist/css/main.min.css')
             .pipe(purify([jsFiles, '*.html']))
+            .pipe(uglifycss({
+                "maxLineLen": 80,
+                "uglyComments": true
+            }))
             .pipe(gulp.dest(cssDest));
 });
 
