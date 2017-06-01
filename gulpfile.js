@@ -1,9 +1,15 @@
+/**
+ ****************************************************
+ * Gulp plugins
+ ****************************************************
+ */
 var gulp = require('gulp'),
     browserSync = require('browser-sync').create(),
     gutil = require('gulp-util'),
     plumber = require('gulp-plumber'),
     concat = require('gulp-concat'),
     rename = require('gulp-rename'),
+    htmlmin = require('gulp-htmlmin'),
     uglify = require('gulp-uglify'),
     sass = require('gulp-sass'),
     uglifycss = require('gulp-uglifycss'),
@@ -14,16 +20,54 @@ var gulp = require('gulp'),
     htmlPartial = require('gulp-html-partial'),
     runSequence = require('run-sequence');
 
+/**
+ ****************************************************
+ * File destinations
+ ****************************************************
+ */
+
 var sassFiles = 'src/sass/**/*.sass',
     cssDest = 'dist/css',
     jsFiles = 'src/js/**/*.js',
     jsDest = 'dist/js';
 
+/**
+ ****************************************************
+ * Error function for SASS compilation
+ ****************************************************
+ */
+
+/**
+ * Produces an error via plumber during sass compile
+ * @param  {string} err [error produced from SASS file]
+ * @return {object}     [details the SASS error]
+ */
 var onError = function (err) {
     gutil.beep();
     console.log(err);
     this.emit('end');
 };
+
+/**
+ ****************************************************
+ * Task definitons
+ *
+ * 1. Server and browser reload
+ * 2. HTML tasks
+ * 3. SASS/CSS tasks
+ * 4. Javascript tasks
+ * 5. Build tasks (creates separate HTML/CSS/Javascript builds and a
+ * complete build (including all 3))
+ *
+ ****************************************************
+ */
+
+
+ /**
+  ****************************************************
+  * Server and browser reload tasks
+  ****************************************************
+  */
 
 gulp.task('watch', ['browserSync'], function() {
     gulp.watch('src/sass/**/*.sass', ['sass-compile']);
@@ -39,6 +83,12 @@ gulp.task('browserSync', function() {
     });
 });
 
+/**
+ ****************************************************
+ * HTML tasks
+ ****************************************************
+ */
+
 gulp.task('html-partial', function () {
     return gulp.src(['src/html/**/*.html'])
         .pipe(htmlPartial({
@@ -50,11 +100,24 @@ gulp.task('html-partial', function () {
         }));
 });
 
+gulp.task('html-minify', function() {
+  return gulp.src('dist/**/*.html')
+    .pipe(htmlmin({collapseWhitespace: true}))
+    .pipe(gulp.dest('dist/'));
+});
+
 gulp.task('html-to-root', [], function() {
   console.log('Moving html to root');
   gulp.src('dist/**/*.html')
       .pipe(gulp.dest(''));
 });
+
+
+/**
+ ****************************************************
+ * SASS/CSS tasks
+ ****************************************************
+ */
 
 gulp.task('sass-compile', function() {
     return gulp.src('src/sass/main.sass')
@@ -92,6 +155,12 @@ gulp.task('css-purify', function() {
             .pipe(gulp.dest(cssDest));
 });
 
+/**
+ ****************************************************
+ * Javascript tasks
+ ****************************************************
+ */
+
 gulp.task('js-purify', function() {
     return gulp.src(['!src/js/lib/jquery.min.js', jsFiles])
         .pipe(gulp.dest('src/js'))
@@ -108,14 +177,24 @@ gulp.task('js-concat', function() {
         }));
 });
 
+/**
+ ****************************************************
+ * Build tasks
+ ****************************************************
+ */
+
+gulp.task('html', function(callback) {
+    runSequence('html-partial', 'html-minify', 'html-to-root');
+});
+
+gulp.task('css', function(callback) {
+    runSequence('sass', 'css-purify');
+});
+
 gulp.task('js', function(callback) {
     runSequence('js-purify', 'js-concat');
 });
 
-gulp.task('html', function(callback) {
-    runSequence('html-partial', 'html-root');
-});
-
 gulp.task('build', function(callback) {
-    runSequence('html', 'css-purify', 'js');
+    runSequence('html', 'css', 'js');
 });
