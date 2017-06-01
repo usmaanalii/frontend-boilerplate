@@ -1,3 +1,3 @@
 $(document).ready(function() {
-    console.log("form one.js");
+    console.log("From one.js");
 });

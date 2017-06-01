@@ -28,14 +28,14 @@ var onError = function (err) {
 
 gulp.task('watch', ['browserSync'], function() {
     gulp.watch('src/sass/**/*.sass', ['sass']);
-    gulp.watch('src/html/**/*.html', 'html');
+    gulp.watch('src/html/**/*.html', ['html-partial']);
     gulp.watch('src/js/**/*.js', ['js-concat']);
 });
 
 gulp.task('browserSync', function() {
     browserSync.init({
         server: {
-            baseDir: ''
+            baseDir: 'dist/'
         },
     });
 });
@@ -45,7 +45,7 @@ gulp.task('html-partial', function () {
         .pipe(htmlPartial({
             basePath: 'src/html/partials/'
         }))
-        .pipe(gulp.dest('dist/html'))
+        .pipe(gulp.dest('dist/'))
         .pipe(browserSync.reload({
             stream: true
         }));
@@ -60,10 +60,7 @@ gulp.task('html-clean', function () {
 gulp.task('html-root', [], function() {
   console.log('Moving index.html to root');
   gulp.src('dist/html/index.html')
-      .pipe(gulp.dest(''))
-      .pipe(browserSync.reload({
-          stream: true
-      }));
+      .pipe(gulp.dest(''));
 });
 
 gulp.task('sass', function() {
