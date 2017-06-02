@@ -833,3 +833,4 @@ tr.visible-print{display:table-row !important}th.visible-print,td.visible-print{
 }.visible-print-inline{display:none !important}@media print{.visible-print-inline{display:inline !important}
 }.visible-print-inline-block{display:none !important}@media print{.visible-print-inline-block{display:inline-block !important}
 }@media print{.hidden-print{display:none !important}}*{border:1px solid #000}h1{background:#ff0;border:1px solid #000;color:#000;max-width:80%;padding:1%;text-decoration:underline}
+.about-page{background:#f28d16}
