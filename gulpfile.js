@@ -25,7 +25,9 @@ var gulp = require('gulp'),
 
     uglify = require('gulp-uglify'),
 
-    spritesmith = require('gulp.spritesmith');
+    spritesmith = require('gulp.spritesmith'),
+
+    deploy      = require('gulp-gh-pages');
 
 /**
  ****************************************************
@@ -220,7 +222,15 @@ gulp.task('sprite', function() {
  ****************************************************
  */
 
-
+/**
+ ****************************************************
+ * Push build to gh-pages
+ ****************************************************
+ */
+gulp.task('deploy', function () {
+    return gulp.src("dist/**/*")
+        .pipe(deploy());
+});
 
 /**
  ****************************************************
