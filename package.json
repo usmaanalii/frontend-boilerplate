@@ -19,16 +19,20 @@
     "gulp-sass-bulk-import": "^1.0.1",
     "gulp-sourcemaps": "^2.6.0",
     "gulp-uglify": "^3.0.0",
-    "gulp-uglifycss": "^1.0.8",
     "gulp-util": "^3.0.8",
     "gulp.spritesmith": "^6.5.0",
     "jquery": "^3.2.1",
     "merge-stream": "^1.0.1",
-    "run-sequence": "^1.2.2",
-    "sassdoc": "^2.2.2"
+    "run-sequence": "^1.2.2"
   },
   "devDependencies": {
-    "gulp-gh-pages": "^0.5.4"
+    "gulp-cache": "^0.4.6",
+    "gulp-clean": "^0.3.2",
+    "gulp-clean-css": "^3.4.1",
+    "gulp-file": "^0.3.0",
+    "gulp-gh-pages": "^0.5.4",
+    "gulp-image-resize": "^0.12.0",
+    "gulp-imagemin": "^3.3.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -8,6 +8,8 @@ var gulp = require('gulp'),
     plumber = require('gulp-plumber'),
     gutil = require('gulp-util'),
     merge = require('merge-stream'),
+    clean = require('gulp-clean'),
+    file = require('gulp-file'),
     runSequence = require('run-sequence'),
 
     concat = require('gulp-concat'),
@@ -17,7 +19,7 @@ var gulp = require('gulp'),
     htmlPartial = require('gulp-html-partial'),
 
     sass = require('gulp-sass'),
-    uglifycss = require('gulp-uglifycss'),
+    cleanCSS = require('gulp-clean-css'),
     sourcemaps = require('gulp-sourcemaps'),
     purify = require('gulp-purifycss'),
     bulkSass = require('gulp-sass-bulk-import'),
@@ -25,9 +27,12 @@ var gulp = require('gulp'),
 
     uglify = require('gulp-uglify'),
 
+    imageResize = require('gulp-image-resize'),
+    imagemin = require('gulp-imagemin'),
+    cache = require('gulp-cache'),
     spritesmith = require('gulp.spritesmith'),
 
-    deploy      = require('gulp-gh-pages');
+    deploy = require('gulp-gh-pages');
 
 /**
  ****************************************************
@@ -38,6 +43,7 @@ var gulp = require('gulp'),
 var htmlFiles = 'src/html/**/*.html',
     sassFiles = 'src/sass/**/*.sass',
     jsFiles = 'src/js/**/*.js',
+    imgFiles = 'src/img/**/*.+(png|jpg|gif)',
 
     htmlDest = 'dist/',
     cssDest = 'dist/css',
@@ -68,7 +74,10 @@ var onError = function(err) {
  * 2. HTML tasks
  * 3. SASS/CSS tasks
  * 4. Javascript tasks
- * 5. Build tasks (creates separate HTML/CSS/Javascript builds and a
+ * 5. Image tasks (INCOMPLETE)
+ * 6. Test tasks (INCOMPLETE)
+ * 8. Deploy task (Pushed to gh-pages)
+ * 7. Build tasks (creates separate HTML/CSS/Javascript builds and a
  * complete build (including all 3))
  *
  ****************************************************
@@ -85,6 +94,7 @@ gulp.task('watch', ['browserSync'], function() {
     gulp.watch(sassFiles, ['sass-compile']);
     gulp.watch(htmlFiles, ['html-partial']);
     gulp.watch(jsFiles, ['js-concat']);
+    gulp.watch(imgFiles, ['img-min']);
 });
 
 gulp.task('browserSync', function() {
@@ -120,6 +130,13 @@ gulp.task('html-minify', function() {
         .pipe(gulp.dest(htmlDest));
 });
 
+gulp.task('html-remove-partials', function() {
+    return gulp.src('dist/partials', {
+            read: false
+        })
+        .pipe(clean());
+});
+
 gulp.task('html-to-root', [], function() {
     console.log('Moving html to root');
     gulp.src('dist/**/*.html')
@@ -148,10 +165,7 @@ gulp.task('sass-compile', function() {
             cascade: false
         }))
         .pipe(rename('main.min.css'))
-        .pipe(uglifycss({
-            "maxLineLen": 80,
-            "uglyComments": true
-        }))
+        .pipe(cleanCSS())
         .pipe(gulp.dest(cssDest))
         .pipe(browserSync.reload({
             stream: true
@@ -161,10 +175,7 @@ gulp.task('sass-compile', function() {
 gulp.task('css-purify', function() {
     return gulp.src('dist/css/main.min.css')
         .pipe(purify([jsFiles, htmlFiles]))
-        .pipe(uglifycss({
-            "maxLineLen": 80,
-            "uglyComments": true
-        }))
+        .pipe(cleanCSS())
         .pipe(gulp.dest(cssDest));
 });
 
@@ -192,30 +203,54 @@ gulp.task('js-concat', function() {
 
 /**
  ****************************************************
- * TODO: Add image optimisation
- * Image tasks INCOMPLETE !!!!!!!!!!!
+ * TODO: Fix sprite tasks - Need a solution for resizing the sprite easily
  ****************************************************
  */
-
-gulp.task('sprite', function() {
+gulp.task('sprite-generator', function() {
     // Generate our spritesheet
-    var spriteData = gulp.src('src/img/*.png').pipe(spritesmith({
+    var spriteData = gulp.src('dist/img/*.png').pipe(spritesmith({
         imgName: 'sprite.png',
-        cssName: 'sprite.css'
+        cssName: '_sprite-sheet.sass'
     }));
 
     // Pipe image stream through image optimizer and onto disk
     var imgStream = spriteData.img
-        .pipe(gulp.dest('dist/img/'));
+        // DEV: We must buffer our stream into a Buffer for `imagemin`
+        // .pipe(buffer())
+        // .pipe(imagemin())
+        .pipe(gulp.dest('dist/css'));
 
     // Pipe CSS stream through CSS optimizer and onto disk
     var cssStream = spriteData.css
-        .pipe(gulp.dest('dist/css'));
+        .pipe(gulp.dest('src/sass/helpers'));
+
+    var makeSpriteSheet = file('_sprite.sass', '@import \'../helpers/_sprite-sheet\'', { src: true })
+    .pipe(gulp.dest('src/sass/components'));
 
     // Return a merged stream to handle both `end` events
-    return merge(imgStream, cssStream);
+    return merge(imgStream, cssStream, makeSpriteSheet);
 });
 
+gulp.task('img-min', function() {
+    gulp.src('src/img/*')
+        // Caching images that ran through imagemin
+        .pipe(cache(imagemin({
+            verbose: true,
+            interlaced: true
+        })))
+        .pipe(gulp.dest('dist/img'));
+});
+
+gulp.task('img-resize', function () {
+  gulp.src('dist/img/image-2.png')
+    .pipe(imageResize({
+      width : 200,
+      height : 200,
+      crop : true,
+      upscale : false
+    }))
+    .pipe(gulp.dest('dist/img'));
+});
 /**
  ****************************************************
  * TODO: Add a test automation workflow
@@ -224,10 +259,12 @@ gulp.task('sprite', function() {
 
 /**
  ****************************************************
- * Push build to gh-pages
+ * Deploy task
+ *      pushes to gh-pages
+ *      url: username.github.io/[repo-name]
  ****************************************************
  */
-gulp.task('deploy', function () {
+gulp.task('deploy', function() {
     return gulp.src("dist/**/*")
         .pipe(deploy());
 });
@@ -239,7 +276,7 @@ gulp.task('deploy', function () {
  */
 
 gulp.task('html', function(callback) {
-    runSequence('html-partial', 'html-minify', 'html-to-root');
+    runSequence('html-partial', 'html-minify', 'html-remove-partials');
 });
 
 gulp.task('css', function(callback) {
