@@ -210,7 +210,7 @@ gulp.task('sprite-generator', function() {
     // Generate our spritesheet
     var spriteData = gulp.src('dist/img/*.png').pipe(spritesmith({
         imgName: 'sprite.png',
-        cssName: '_sprite-sheet.sass'
+        cssName: '_sprite-sheet.sass',
     }));
 
     // Pipe image stream through image optimizer and onto disk
@@ -224,8 +224,15 @@ gulp.task('sprite-generator', function() {
     var cssStream = spriteData.css
         .pipe(gulp.dest('src/sass/helpers'));
 
-    var makeSpriteSheet = file('_sprite.sass', '@import \'../helpers/_sprite-sheet\'', { src: true })
-    .pipe(gulp.dest('src/sass/components'));
+    var spriteSass = {
+        spriteImport: '@import \'_sprite-sheet\'',
+        spriteInclude: '@include sprites($spritesheet-sprites)'
+    };
+
+    var makeSpriteSheet = file('_sprite.sass', spriteSass.spriteImport + '\n\n' + spriteSass.spriteInclude, {
+            src: true
+        })
+        .pipe(gulp.dest('src/sass/helpers'));
 
     // Return a merged stream to handle both `end` events
     return merge(imgStream, cssStream, makeSpriteSheet);
@@ -241,15 +248,15 @@ gulp.task('img-min', function() {
         .pipe(gulp.dest('dist/img'));
 });
 
-gulp.task('img-resize', function () {
-  gulp.src('dist/img/image-2.png')
-    .pipe(imageResize({
-      width : 200,
-      height : 200,
-      crop : true,
-      upscale : false
-    }))
-    .pipe(gulp.dest('dist/img'));
+gulp.task('img-resize', function() {
+    gulp.src('dist/img/image-2.png')
+        .pipe(imageResize({
+            width: 200,
+            height: 200,
+            crop: true,
+            upscale: false
+        }))
+        .pipe(gulp.dest('dist/img'));
 });
 /**
  ****************************************************
