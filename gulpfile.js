@@ -131,6 +131,7 @@ gulp.task('html-minify', function() {
 });
 
 gulp.task('html-remove-partials', function() {
+    console.log('Removing partials from dist directory');
     return gulp.src('dist/partials', {
             read: false
         })
@@ -150,6 +151,7 @@ gulp.task('html-to-root', [], function() {
  */
 
 gulp.task('sass-compile', function() {
+    console.log('Compiling SASS including autoprefixer, sourcemaps and bulk imports');
     return gulp.src('src/sass/main.sass')
         .pipe(sourcemaps.init())
         .pipe(plumber({
@@ -173,6 +175,7 @@ gulp.task('sass-compile', function() {
 });
 
 gulp.task('css-purify', function() {
+    console.log('Removing unused CSS');
     return gulp.src('dist/css/main.min.css')
         .pipe(purify([jsFiles, htmlFiles]))
         .pipe(cleanCSS())
@@ -186,12 +189,14 @@ gulp.task('css-purify', function() {
  */
 
 gulp.task('js-purify', function() {
+    console.log('Minifying all js files apart form jquery (which is already minified)');
     return gulp.src(['!src/js/lib/jquery.min.js', jsFiles])
         .pipe(gulp.dest('src/js'))
         .pipe(uglify());
 });
 
 gulp.task('js-concat', function() {
+    console.log('Concatenating all js files and renaming it to main.min.js');
     return gulp.src(['src/js/lib/jquery.min.js', jsFiles])
         .pipe(concat('main.js'))
         .pipe(rename('main.min.js'))
@@ -235,10 +240,13 @@ gulp.task('sprite-generator', function() {
         .pipe(gulp.dest('src/sass/helpers'));
 
     // Return a merged stream to handle both `end` events
+    console.log('Creating sprite.png and inserting it into dist/css');
+    console.log('Also creates sprite sass files with image name as class name');
     return merge(imgStream, cssStream, makeSpriteSheet);
 });
 
 gulp.task('img-min', function() {
+    console.log('Minfication of images to reduce size');
     gulp.src('src/img/*')
         // Caching images that ran through imagemin
         .pipe(cache(imagemin({
@@ -249,6 +257,7 @@ gulp.task('img-min', function() {
 });
 
 gulp.task('img-resize', function() {
+    console.log('Reducing image to specified size');
     gulp.src('dist/img/image-2.png')
         .pipe(imageResize({
             width: 200,
@@ -272,6 +281,7 @@ gulp.task('img-resize', function() {
  ****************************************************
  */
 gulp.task('deploy', function() {
+    console.log('Creates a gh pages branch and deploys to github pages from the dist directory');
     return gulp.src("dist/**/*")
         .pipe(deploy());
 });
@@ -283,17 +293,21 @@ gulp.task('deploy', function() {
  */
 
 gulp.task('html', function(callback) {
+    console.log('Adding html partials, minifes them and removes the partials from dist');
     runSequence('html-partial', 'html-minify', 'html-remove-partials');
 });
 
 gulp.task('css', function(callback) {
+    console.log('Performs sass compilation and removes unused css');
     runSequence('sass', 'css-purify');
 });
 
 gulp.task('js', function(callback) {
+    console.log('Minfication and concatenation of js files');
     runSequence('js-purify', 'js-concat');
 });
 
 gulp.task('build', function(callback) {
+    console.log('Performing all html/css/js tasks');
     runSequence('html', 'css', 'js');
 });
