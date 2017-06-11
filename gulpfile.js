@@ -251,6 +251,13 @@ gulp.task('bundle', function () {
     return bundle();
 });
 
+gulp.task('js-bundle-minify', function() {
+    console.log('Minifying the bundle');
+    return gulp.src('dist/js/bundle.js')
+        .pipe(uglify())
+        .pipe(gulp.dest('dist/js'));
+});
+
 /**
  ****************************************************
  * TODO: Fix sprite tasks - Need a solution for resizing the sprite easily
@@ -349,5 +356,5 @@ gulp.task('css', function(callback) {
 
 gulp.task('build', function(callback) {
     console.log('Performing all html and css tasks');
-    runSequence('html', 'css');
+    runSequence('html', 'css', 'js-bundle-minify');
 });
