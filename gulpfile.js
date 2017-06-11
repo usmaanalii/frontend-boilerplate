@@ -347,12 +347,7 @@ gulp.task('css', function(callback) {
     runSequence('sass', 'css-purify');
 });
 
-gulp.task('js', function(callback) {
-    console.log('Minfication and concatenation of js files');
-    runSequence('js-purify', 'js-concat');
-});
-
 gulp.task('build', function(callback) {
-    console.log('Performing all html/css/js tasks');
-    runSequence('html', 'css', 'js');
+    console.log('Performing all html and css tasks');
+    runSequence('html', 'css');
 });
