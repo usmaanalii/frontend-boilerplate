@@ -28,9 +28,11 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     watchify = require('watchify'),
     browserify = require('browserify'),
+    exorcist    = require('exorcist'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
     assign = require('lodash.assign'),
+    babelify    = require('babelify'),
 
     imageResize = require('gulp-image-resize'),
     imagemin = require('gulp-imagemin'),
@@ -98,11 +100,10 @@ var onError = function(err) {
 gulp.task('watch', ['browserSync'], function() {
     gulp.watch(sassFiles, ['sass-compile']);
     gulp.watch(htmlFiles, ['html-partial']);
-    gulp.watch(jsFiles, ['js-bundle']);
     gulp.watch(imgFiles, ['img-min']);
 });
 
-gulp.task('browserSync', function() {
+gulp.task('browserSync', ['bundle'], function() {
     browserSync.init({
         server: {
             baseDir: htmlDest
@@ -212,39 +213,43 @@ gulp.task('js-concat', function() {
 });
 
 ///////////////////////////////////////////
-// add custom browserify options here
-var customOpts = {
-    entries: ['./src/js/app.js'],
-    debug: true
-};
-var opts = assign({}, watchify.args, customOpts);
-var b = watchify(browserify(opts));
 
-// add transformations here
-// i.e. b.transform(coffeeify);
+// Watchify args contains necessary cache options to achieve fast incremental bundles.
+// See watchify readme for details. Adding debug true for source-map generation.
+watchify.args.debug = true;
+// Input file.
+var bundler = watchify(browserify('./src/js/app.js', watchify.args));
 
-gulp.task('js-bundle', bundle); // so you can run `gulp js` to build the file
-b.on('update', bundle); // on any dep update, runs the bundler
-b.on('log', gutil.log); // output build logs to terminal
+// Babel transform
+bundler.transform(babelify.configure({
+    sourceMapRelative: 'app/js'
+}));
+
+// On updates recompile
+bundler.on('update', bundle);
 
 function bundle() {
-    return b.bundle()
-        // log errors if they happen
-        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+
+    gutil.log('Compiling JS...');
+
+    return bundler.bundle()
+        .on('error', function (err) {
+            gutil.log(err.message);
+            browserSync.notify("Browserify Error!");
+            this.emit("end");
+        })
+        .pipe(exorcist('.dist/js/bundle.js.map'))
         .pipe(source('bundle.js'))
-        // optional, remove if you don't need to buffer file contents
-        .pipe(buffer())
-        // optional, remove if you dont want sourcemaps
-        .pipe(sourcemaps.init({
-            loadMaps: true
-        })) // loads map from browserify file
-        // Add transformation tasks to the pipeline here.
-        .pipe(sourcemaps.write('./')) // writes .map file
         .pipe(gulp.dest('./dist/js'))
-        .pipe(browserSync.reload({
-            stream: true
-        }));
+        .pipe(browserSync.stream({once: true}));
 }
+
+/**
+ * Gulp task alias
+ */
+gulp.task('bundle', function () {
+    return bundle();
+});
 
 /**
  ****************************************************

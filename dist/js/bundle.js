@@ -1,22 +1,23 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-"use strict";
+'use strict';
 
-var _subModule = require("./module/subModule1.js");
+var _subModule = require('./module/subModule1');
 
 var x = 1;
 
-console.log(x + (0, _subModule.add2)(3));
+console.log(x + (0, _subModule.add3)(21));
 
-},{"./module/subModule1.js":2}],2:[function(require,module,exports){
+},{"./module/subModule1":2}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
-var add2 = exports.add2 = function add2(x) {
-    return x + 2;
-};
+function add3(x) {
+  return x + 1;
+}
+
+exports.add3 = add3;
 
 },{}]},{},[1])
-
 //# sourceMappingURL=bundle.js.map

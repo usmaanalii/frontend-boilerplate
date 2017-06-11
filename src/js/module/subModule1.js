@@ -1,3 +1,5 @@
-export const add2 = function(x) {
-    return x + 2;
-};
+function add3(x) {
+  return x + 1;
+}
+
+export { add3 };
