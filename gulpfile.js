@@ -26,6 +26,11 @@ var gulp = require('gulp'),
     autoprefixer = require('gulp-autoprefixer'),
 
     uglify = require('gulp-uglify'),
+    watchify = require('watchify'),
+    browserify = require('browserify'),
+    source = require('vinyl-source-stream'),
+    buffer = require('vinyl-buffer'),
+    assign = require('lodash.assign'),
 
     imageResize = require('gulp-image-resize'),
     imagemin = require('gulp-imagemin'),
@@ -93,7 +98,7 @@ var onError = function(err) {
 gulp.task('watch', ['browserSync'], function() {
     gulp.watch(sassFiles, ['sass-compile']);
     gulp.watch(htmlFiles, ['html-partial']);
-    gulp.watch(jsFiles, ['js-concat']);
+    gulp.watch(jsFiles, ['js-bundle']);
     gulp.watch(imgFiles, ['img-min']);
 });
 
@@ -205,6 +210,41 @@ gulp.task('js-concat', function() {
             stream: true
         }));
 });
+
+///////////////////////////////////////////
+// add custom browserify options here
+var customOpts = {
+    entries: ['./src/js/app.js'],
+    debug: true
+};
+var opts = assign({}, watchify.args, customOpts);
+var b = watchify(browserify(opts));
+
+// add transformations here
+// i.e. b.transform(coffeeify);
+
+gulp.task('js-bundle', bundle); // so you can run `gulp js` to build the file
+b.on('update', bundle); // on any dep update, runs the bundler
+b.on('log', gutil.log); // output build logs to terminal
+
+function bundle() {
+    return b.bundle()
+        // log errors if they happen
+        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+        .pipe(source('bundle.js'))
+        // optional, remove if you don't need to buffer file contents
+        .pipe(buffer())
+        // optional, remove if you dont want sourcemaps
+        .pipe(sourcemaps.init({
+            loadMaps: true
+        })) // loads map from browserify file
+        // Add transformation tasks to the pipeline here.
+        .pipe(sourcemaps.write('./')) // writes .map file
+        .pipe(gulp.dest('./dist/js'))
+        .pipe(browserSync.reload({
+            stream: true
+        }));
+}
 
 /**
  ****************************************************
