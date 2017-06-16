@@ -82,7 +82,7 @@ var onError = function(err) {
  * 2. HTML tasks
  * 3. SASS/CSS tasks
  * 4. Javascript tasks
- * 5. Image tasks (INCOMPLETE)
+ * 5. Image tasks
  * 6. Test tasks (INCOMPLETE)
  * 8. Deploy task (Pushed to gh-pages)
  * 7. Build tasks (creates separate HTML/CSS/Javascript builds and a
@@ -125,14 +125,10 @@ gulp.task('html-minify', function() {
     return gulp.src('dist/**/*.html').pipe(htmlmin({collapseWhitespace: true})).pipe(gulp.dest(htmlDest));
 });
 
+// This is run in the 'build' task to clean up the dist directory
 gulp.task('html-remove-partials', function() {
     console.log('Removing partials from dist directory');
     return gulp.src('dist/partials', {read: false}).pipe(clean());
-});
-
-gulp.task('html-to-root', [], function() {
-    console.log('Moving html to root');
-    gulp.src('dist/**/*.html').pipe(gulp.dest(''));
 });
 
 /**
@@ -156,18 +152,6 @@ gulp.task('css-purify', function() {
  * Javascript tasks
  ****************************************************
  */
-
-gulp.task('js-purify', function() {
-    console.log('Minifying all js files apart form jquery (which is already minified)');
-    return gulp.src(['!src/js/lib/jquery.min.js', jsFiles]).pipe(gulp.dest('src/js')).pipe(uglify());
-});
-
-gulp.task('js-concat', function() {
-    console.log('Concatenating all js files and renaming it to main.min.js');
-    return gulp.src(['src/js/lib/jquery.min.js', jsFiles]).pipe(concat('main.js')).pipe(rename('main.min.js')).pipe(gulp.dest(jsDest)).pipe(browserSync.reload({stream: true}));
-});
-
-///////////////////////////////////////////
 
 // Watchify args contains necessary cache options to achieve fast incremental bundles.
 // See watchify readme for details. Adding debug true for source-map generation.

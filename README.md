@@ -1,21 +1,21 @@
 # Frontend boilerplate
-
+©
 This is a boilerplate designed primarily for **beginners** learning web development.
 It's built for developing with HTML, SASS and ES6.
 
-#### Requirements
+### Requirements
 - Node
 - Npm
 
-#### Instructions
+### Instructions
 - Clone or download the repository
 - Run `npm install`
 
-#### Who should use this?
+### Who should use this?
 If you're beginning to start developing websites or web applications on your own
 and terms like minification, sprites or asset optimisation confuse you.
 
-#### How to use this?
+### How to use this?
 Have a look at the [directory structure](#file-structure). Use the `src` files
 to develop the application. The optimised version will be created in the
 `dist` directory. How exactly this is done is explained [here](#details).
@@ -28,7 +28,7 @@ This will allow you to develop the application with live reloading when changes
 are made to HTML, CSS and Javascript files. It will also optimise newly added
 images. Other tasks can be manually performed and are explained [here](#here).
 
-#### Motivations for creating the boilerplate
+### Motivations for creating the boilerplate
 Having completed a few based web projects, I began to look at best practices online,
 regularly caming across terms such as those mentioned above. I was totally confused,
 and decided I would learn about some of these processes. I settled on using `gulp` to
@@ -36,7 +36,7 @@ perform these tasks. This started out as a knowledge gap filler, and turned into
 a hands on gulp project. At the end of it, I figured this might benefit beginners
 who were in my position.
 
-#### File Structure
+### File Structure
 
 ```
 ├── dist/
@@ -78,3 +78,91 @@ who were in my position.
 ├── package.json
 ├── README.md
 ```
+
+### Tasks explained
+
+The magic of the boilerplate is all in `gulpfile.js`. This performs all of the
+tasks via `gulp *task*` commands run in the terminal (given its pointing at
+the project directory). So for example, to perform a task called `html-minify`,
+run `gulp html-minify` in the terminal.
+
+The tasks can be broken down into those associated with:
+
+- HTML
+- CSS
+- Javascript
+- Images
+
+Along with this, there is a task that handles deploying the web application to
+github pages (useful for showcasing work for your portfolio). Implementing a
+server with hot reloading is also handled here, this creates a
+development environment similar to online platforms like codepen.
+
+#### HTML
+If you look in the `src/html/` directory you will notice a `partials` folder. This will allow you to split up your pages into components as you wish.
+An example of this is shown here
+
+`index.html`
+
+``` html
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+</head>
+
+<body>
+
+    <partial src="_partial1.html" data="partial data transfer"></partial>
+
+</body>
+
+</html>
+
+```
+
+`_partial1.html`
+
+``` html
+<div class="partial">
+
+    <div>@@data</div>
+
+</div>
+
+```
+
+There is a task that will take these partials and embed them into your main html
+pages located in the `dist` directory.
+
+There is also a minification task, that will remove whitespace in your HTML files, and help to make your website run faster.
+
+#### CSS
+If you look at the [directory structure](#file-structure) above, you will notice
+their is a `sass` folder in src and `css` folder in dist. This is because I prefer (and you may too) to write my CSS using SASS. When starting with SASS, it can be confusing on how best to optimise your workflow, therefore I have set up the SASS directory with a commonly use 7-1 architecture pattern. More details of this can be found [here](https://scotch.io/tutorials/aesthetic-sass-1-architecture-and-style-organization).
+
+The SASS compile task handles many things that will help your workflow, firstly it has an **autoprefixer** which means no more code like below needs to be written.
+
+``` css
+-webkit-transform: translate(100px) rotate(20deg);
+```
+
+It also has a **bulk imports** for SASS, which allow you to import entire directories instead of each individual file. The following code shown in `main.sass` will import all files located in the base directory.
+
+``` sass
+@import 'base/*'
+```
+
+**Sourcemaps** are also created, this is especially important as it will trace back the code to its original file, helping when you debug in the browser.
+
+The SASS will be compiled and minified into the dist directory as `main.min.css`.
+
+One of the best features of the boilerplate with regards to how it handles your styles, is that I have set up a purification task that will be performed with the command `gulp build`. This will locate unused CSS and remove it from `main.min.css`. If you use libraries such as bootstrap, this can save up an overwhelming amount of code, speeding up your websites dramatically.
+
+#### Javscript
+Having done a lot of research, I decided to make the commitment to using ES6 from now on, and have set up the boilerplate to use it too. If you are unfamiliar with this, I highly recommend you read about it. The javascript task will essentially convert the ES6 you write into 'regular' Javascript that web browsers can understand, allowing you to capitalise on new features in ES6. Just like the CSS purification, I have set up a optimizer which is performed with `gulp build`.
+
+#### Images
