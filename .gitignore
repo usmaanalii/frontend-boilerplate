@@ -1,6 +1,3 @@
 node_modules/
 .publish/
-.eslintrc
-.babelrc
-.sass-lint.yml
 bundle.js.map
