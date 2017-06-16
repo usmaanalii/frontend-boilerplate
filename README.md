@@ -1,5 +1,5 @@
 # Frontend boilerplate
-©
+
 This is a boilerplate designed primarily for **beginners** learning web development.
 It's built for developing with HTML, SASS and ES6.
 
@@ -166,3 +166,19 @@ One of the best features of the boilerplate with regards to how it handles your 
 Having done a lot of research, I decided to make the commitment to using ES6 from now on, and have set up the boilerplate to use it too. If you are unfamiliar with this, I highly recommend you read about it. The javascript task will essentially convert the ES6 you write into 'regular' Javascript that web browsers can understand, allowing you to capitalise on new features in ES6. Just like the CSS purification, I have set up a optimizer which is performed with `gulp build`.
 
 #### Images
+For the images, I have provided two options, firstly, you can simply use the images which will be minified from the src directory and located in the dist directory, this will reduce the size of your images without affecting their quality.
+
+The second option, is to use sprites. These will essentially combine all of the images in the src/img directory into a single image file, sort of like a mosaic. Along with this large image file, an associated CSS/SASS file will be generated which will produce the necessary CSS to dissect the sprite file. The result of using this method, is fewer requests to retrieve files and a much faster website depending on how many images are used.
+
+I have set the sprite generating tasks to work with SASS, therefore all you need to do to use the images via sprites, is to apply the name of the file as a class attribute. For example the following code will produce `image-1.png` as if you used an `img` tag.
+
+``` html
+<div class="image-1"></div>
+```
+
+The SASS generated is located here `src/sass/helpers/_sprite-sheet.sass`. I have abstracted this by creating the `src/sass/helpers/_sprite.sass` file which imports the necessary code (from the confusing sprite_sheet).
+
+#### Others
+There is a deploy task which when run using `gulp deploy` will add the webpage to github pages, this can be viewed at the following url `username.github.io/repo-name`. This will allow you to host your static projects helping to demonstrate your abilities to prospective employers.
+
+I recommend running the `gulp build` task before deploying, as this will ensure all your code is optmised and ready to go.
