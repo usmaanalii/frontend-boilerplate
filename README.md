@@ -12,10 +12,29 @@ It's built for developing with HTML (including partials), SASS and ES6.
 - Run `npm install`
 - Read on
 
+### Table of Contents
+
+- [Who should use this?](#who-should-use-this?)
+- [How to use this?](#how-to-use-this?)
+- [Motivations for creating the boilerplate](#motivations-for-creating-the-boilerplate)
+- [Directory Structure](#directory-structure)
+- [Tasks Explained](#tasks-explained)
+    - [HTML](#html)
+    - [CSS](#css)
+    - [Javascript](#javascript)
+    - [Images](#images)
+    - [Others](#others)
+- [Notes](#notes)
+- [Todo](#todo)
+
 ### Who should use this?
-If you're beginning your journey in web development
-and don't know where to start as far as optimising your webpages then, this is a
-something that will handle a lot of these complicated tasks. All you need to do is code!
+If you're beginning your journey in web development,
+and don't know where to start, as far as optimising your webpages then, this is a
+something that will handle a lot of these complicated tasks.
+
+All you need to do is code!
+
+*************
 
 ### How to use this?
 Firstly, take a look at the [directory structure](#file-structure).
@@ -32,6 +51,8 @@ This will allow you to develop the application with live reloading, reflecting
 the changes made to your HTML, CSS and Javascript files. This acheives similar functionality to
 online platforms like Codepen.
 
+*************
+
 ### Motivations for creating the boilerplate
 Having completed a few web development projects, I decided that I needed
 to utilise more best practices. Whilst researching, I regularly came across terms
@@ -44,7 +65,9 @@ I settled on using `gulp` to learn about these tasks.
 After playing around with gulp for a couple of weeks, I decided it might benefit
 others to leave this out there for people who might have been in my position.
 
-### File Structure
+*************
+
+### Directory Structure
 
 ```
 ├── dist/
@@ -87,6 +110,8 @@ others to leave this out there for people who might have been in my position.
 ├── README.md
 ```
 
+*************
+
 ### Tasks explained
 
 The magic of this boilerplate is all in `gulpfile.js`. This performs all of the
@@ -106,8 +131,6 @@ The tasks can be broken down into those associated with:
 As well as this, I have provided a task that will deploy the web application to
 github pages (useful for showcasing work as part of an online portfolio). More on this
 [here](#others).
-
-*************
 
 #### HTML
 If you look in the `src/html` directory you will notice a `partials` folder.
@@ -184,8 +207,6 @@ The code above would result in the following.
 
 For optimisation, a HTML minification task has been included. This will
 remove whitespace from your HTML files, helping to speed up your pages.
-
-*************
 
 #### CSS
 If you look at the [directory structure](#file-structure) above, you will notice
@@ -282,6 +303,8 @@ projects on github.
 I recommend running the `gulp build` task before deploying,
 as this will ensure all your code is optmised and ready to go.
 
+*************
+
 ### Notes
 
 I have added both **bootstrap** and **jQuery** to the boilerplate, as newbies
@@ -300,6 +323,8 @@ file top of the files.
 ``` javascript
 import $ from 'jquery';
 ```
+
+*************
 
 ### TODO
 
